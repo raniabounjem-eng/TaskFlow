@@ -275,9 +275,9 @@ Le fichier `.gitlab-ci.yml` définit un pipeline en 3 stages :
 
 ## ScreenShot
 
-![HealthCheck API](https://github.com/raniabounjem-eng/TaskFlow#API_Screen.png)
-![Formulaire Login](https://github.com/raniabounjem-eng/TaskFlow#LoginForm_Screen.png)
-![KANBAN](https://github.com/raniabounjem-eng/TaskFlow#Kanban_Screen.png)
+![HealthCheck API](https://github.com/raniabounjem-eng/TaskFlow/blob/develop/API_Screen.png)
+![Formulaire Login](https://github.com/raniabounjem-eng/TaskFlow/blob/develop/LoginForm_Screen.png)
+![KANBAN](https://github.com/raniabounjem-eng/TaskFlow/blob/develop/Kanban_Screen.png)
 
 ---
 
