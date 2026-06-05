@@ -1,0 +1,76 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# TaskFlow – Stack complète Docker
+#
+# Services :
+#   db        = MariaDB 11
+#   backend   = Spring Boot (JAR)
+#   frontend  = Angular (Nginx)
+#
+# Lancement : docker-compose up -d
+# Arrêt     : docker-compose down
+# Logs      : docker-compose logs -f backend
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── MariaDB ──────────────────────────────────────────────────────────────────
+  db:
+    image: mariadb:11
+    container_name: taskflow-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE:      taskflow
+      MARIADB_USER:          taskflow
+      MARIADB_PASSWORD:      taskflow123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql         # données persistantes
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql   # script d'init
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend Spring Boot ───────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./taskflow-backend
+      dockerfile: Dockerfile.back
+    container_name: taskflow-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/taskflow
+      SPRING_DATASOURCE_USERNAME: taskflow
+      SPRING_DATASOURCE_PASSWORD: taskflow123
+      JWT_SECRET: taskflow-super-secret-key-must-be-at-least-256-bits-long-2024
+      JWT_EXPIRATION_MS: 86400000
+    depends_on:
+      db:
+        condition: service_healthy   # attend que MariaDB soit prêt
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Frontend Angular ──────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./taskflow-frontend
+      dockerfile: Dockerfile.front
+    container_name: taskflow-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+# ── Volumes persistants ────────────────────────────────────────────────────────
+volumes:
+  mariadb_data:
+    driver: local

@@ -1,0 +1,56 @@
+<!-- login.component.html -->
+<div class="login-container">
+  <mat-card class="login-card">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h1>📋 TaskFlow</h1>
+        <p class="subtitle">Application de gestion de projets Scrum</p>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <div *ngIf="errorMessage" class="error-alert">
+        <mat-icon>error_outline</mat-icon> {{ errorMessage }}
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email"
+                 placeholder="votre@email.com" autocomplete="email" />
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="email?.hasError('required')">L'email est obligatoire</mat-error>
+          <mat-error *ngIf="email?.hasError('email')">Format d'email invalide</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'"
+                 formControlName="password" autocomplete="current-password" />
+          <button mat-icon-button matSuffix type="button"
+                  (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="password?.hasError('required')">Le mot de passe est obligatoire</mat-error>
+          <mat-error *ngIf="password?.hasError('minlength')">Minimum 6 caractères</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit"
+                class="full-width submit-btn"
+                [disabled]="loginForm.invalid || loading">
+          <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+          <span *ngIf="!loading">Se connecter</span>
+        </button>
+
+      </form>
+
+      <p style="text-align:center; margin-top:1.5rem; color:#888; font-size:0.8rem;">
+        Comptes de test : <code>admin&#64;rania.ma</code> / <code>password123</code>
+      </p>
+
+    </mat-card-content>
+  </mat-card>
+</div>

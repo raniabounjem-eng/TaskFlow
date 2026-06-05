@@ -1,0 +1,35 @@
+# ── Dockerfile Backend Spring Boot ──────────────────────────────────────────
+# Multi-stage build :
+#   Stage 1 (build)  : compilation Maven ET génère le JAR
+#   Stage 2 (runtime): image légère JRE ET exécute le JAR
+#
+
+# ─── Stage 1 : Build ─────────────────────────────────────────────────────────
+FROM maven:3.9-eclipse-temurin-17 AS build
+
+WORKDIR /app
+
+# Copier d'abord le pom.xml pour profiter du cache Docker des dépendances
+COPY pom.xml .
+RUN mvn dependency:go-offline -q
+
+# Copier les sources et compiler
+COPY src ./src
+RUN mvn clean package -DskipTests -q
+
+# ─── Stage 2 : Runtime ───────────────────────────────────────────────────────
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+# Copier uniquement le JAR depuis le stage build
+COPY --from=build /app/target/*.jar app.jar
+
+# Port exposé
+EXPOSE 8080
+
+# Health check (utilisé par docker-compose)
+HEALTHCHECK --interval=15s --timeout=5s \
+  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

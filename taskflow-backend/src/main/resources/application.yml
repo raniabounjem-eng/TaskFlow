@@ -1,0 +1,49 @@
+# ─── application.yml ─────────────────────────────────────────────────────────
+# Configuration Spring Boot pour TaskFlow
+# Les valeurs sensibles sont surchargées par les variables d'environnement Docker
+# ─────────────────────────────────────────────────────────────────────────────
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: taskflow-backend
+
+  # ── Datasource MariaDB ────────────────────────────────────────────────────
+  datasource:
+    url:      ${SPRING_DATASOURCE_URL:jdbc:mariadb://localhost:3306/taskflow}
+    username: ${SPRING_DATASOURCE_USERNAME:taskflow}
+    password: ${SPRING_DATASOURCE_PASSWORD:taskflow123}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  # ── JPA / Hibernate ────────────────────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: update        # Crée / met à jour les tables automatiquement
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: true
+
+# ── JWT ───────────────────────────────────────────────────────────────────────
+jwt:
+  secret:        ${JWT_SECRET:taskflow-super-secret-key-must-be-at-least-256-bits-long-2024}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}   # 24 heures
+
+# ── Actuator (health check Docker) ────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level:
+    ma.rania.taskflow: DEBUG
+    org.springframework.security: INFO

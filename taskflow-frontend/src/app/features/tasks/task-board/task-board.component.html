@@ -1,0 +1,62 @@
+<!-- task-board.component.html -->
+<div class="kanban-board">
+
+  <!-- Une colonne par statut -->
+  <div class="kanban-column"
+       *ngFor="let col of columns"
+       [style.background-color]="col.color">
+
+    <!-- En-tête colonne -->
+    <div class="column-header">
+      <h3>{{ col.label }}</h3>
+      <mat-chip>{{ col.tasks.length }}</mat-chip>
+    </div>
+
+    <!--
+      cdkDropList      : marque ce div comme zone de dépôt
+      [cdkDropListData]: lié au tableau de tâches de la colonne
+      [cdkDropListConnectedTo]: permet le transfert entre colonnes
+    -->
+    <div class="task-list"
+         cdkDropList
+         [id]="col.id"
+         [cdkDropListData]="col.tasks"
+         [cdkDropListConnectedTo]="getColumnIds()"
+         (cdkDropListDropped)="drop($event, col.id)">
+
+      <!-- Carte tâche draggable -->
+      <mat-card class="task-card"
+                *ngFor="let task of col.tasks"
+                cdkDrag>
+
+        <!-- Barre de priorité colorée sur le côté gauche -->
+        <div class="priority-bar"
+             [style.background-color]="getPriorityColor(task.priority)">
+        </div>
+
+        <mat-card-content>
+          <h4>{{ task.title }}</h4>
+          <p class="description">{{ task.description }}</p>
+
+          <div class="task-meta">
+            <mat-chip class="priority-chip"
+                      [style.color]="getPriorityColor(task.priority)">
+              {{ task.priority }}
+            </mat-chip>
+            <span *ngIf="task.assigneeName" class="assignee">
+              👤 {{ task.assigneeName }}
+            </span>
+            <span *ngIf="task.dueDate" class="due-date">
+              📅 {{ task.dueDate | date:'dd/MM/yy' }}
+            </span>
+          </div>
+        </mat-card-content>
+
+        <!-- Placeholder affiché pendant le drag -->
+        <div *cdkDragPlaceholder class="drag-placeholder"></div>
+      </mat-card>
+
+    </div>
+  </div>
+
+</div>
